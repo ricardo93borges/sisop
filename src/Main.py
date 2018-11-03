@@ -6,12 +6,12 @@ class Main:
     partitions = 16
     partitionLength = 64
     memoryLength = partitions * partitionLength
-    memory = [None]*memoryLength
+    memory = [None]*10
 
     def __init__(self):
         print "main"
-        print len(Main.memory)
-        #cpu = Cpu()
-        #cpu.start()
+        print Main.memory
+        cpu1 = Cpu(Main.memory)
+        cpu1.start()        
 
 main = Main()        
