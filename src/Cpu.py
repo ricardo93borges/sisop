@@ -22,7 +22,7 @@ class Cpu(threading.Thread):
 
     def setPC(self, position):
         if self.validatePosition(position):
-            return physicalPosition
+            self.pc = position
         else:
             print "Improper access"
 
@@ -34,34 +34,67 @@ class Cpu(threading.Thread):
             print "Improper access"
 
     def validatePosition(self, position):
-        if self.r0 <= physicalPosition and self.r1 >= physicalPosition:
+        if self.r0 <= position and self.r1 >= position:
             return True
         else:
             return False
 
-    def execInstruction(self, opcode):
+    def execInstruction(self, opcode, opr, value=None):
         if opcode == 1: #ADD
-            pass
+            self.lock.acquire()
+            self.acc += self.memory[self.translate(opr)]
+            self.incrementPC()
+            self.lock.release()
         elif opcode == 2:#SUB
-            pass
+            self.lock.acquire()
+            self.acc -= self.memory[self.translate(opr)]
+            self.incrementPC()
+            self.lock.release()
         elif opcode == 3:#MUL
-            pass            
+            self.lock.acquire()
+            self.acc *= self.memory[self.translate(opr)]
+            self.incrementPC()
+            self.lock.release()
         elif opcode == 4:#DIV
-            pass
+            self.lock.acquire()
+            self.acc /= self.memory[self.translate(opr)]
+            self.incrementPC()
+            self.lock.release()
         elif opcode == 5:#LOAD
-            pass
+            self.lock.acquire()
+            self.acc = self.memory[self.translate(opr)]
+            self.incrementPC()
+            self.lock.release()
         elif opcode == 6:#STORE
-            pass
+            self.lock.acquire()
+            self.memory[self.translate(opr)] = self.acc
+            self.incrementPC()
+            self.lock.release()
         elif opcode == 7:#BRPOS
-            pass
+            self.lock.acquire()
+            if self.acc > 0:
+                self.setPC(opr)
+            self.lock.release()
         elif opcode == 8:#BRNEG
-            pass
+            self.lock.acquire()
+            if self.acc < 0:
+                self.setPC(opr)
+            self.lock.release()
         elif opcode == 9:#BREQ
-            pass
+            self.lock.acquire()
+            if self.acc == 0:
+                self.setPC(opr)
+            self.lock.release()
         elif opcode == 10:#IN
-            pass
+            self.lock.acquire()
+            self.memory[self.translate(opr)] = value
+            self.incrementPC()
+            self.lock.release()
         elif opcode == 11:#OUT
-            pass
+            self.lock.acquire()
+            print self.memory[self.translate(opr)]
+            self.incrementPC()
+            self.lock.release()
         elif opcode == 12:#STOP
             pass
         elif opcode == 13:#DAT
