@@ -1,9 +1,25 @@
-import threading
+class MemoryManager():
 
-class MemoryManager(threading.Thread):
+    def __init__(self, memory, partitons, partitionLength):
+        self.memory = memory
+        self.partitions = partitons
+        self.partitionLength = partitionLength
+        self.memorySize = partitons*partitionLength
 
-    def __init__(self):
-        threading.Thread.__init__(self, group=None, target=None, name='MemoryManager',verbose=None)
+    def allocMemory(self):
+        n = 0
+        while(n <= self.memorySize):
+            if n >= self.memorySize:                
+                return False
+            elif self.memory[0] == None:                
+                return n            
+            else:
+                n += self.partitions
 
-    def run(self):
-        print "Thread", self.getName()
+    def loadProgram(self, partition, program):
+        if len(program) > self.partitionLength:
+            print "program size is larger than a memory partition length"
+        else:
+            for instruction in program:
+                self.memory[partition] = instruction
+                partition += 1
