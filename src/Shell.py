@@ -1,9 +1,19 @@
-import threading
+import os 
 
-class Shell(threading.Thread):
+class Shell():
 
     def __init__(self):
-        threading.Thread.__init__(self, group=None, target=None, name='SHELL',verbose=None)
+        self.path = os.path.dirname(os.path.realpath(__file__))
+        self.submittedList = self.path+"/submitted.txt"
+        print self.submittedList
 
     def run(self):
-        print "Thread", self.getName()
+        while True:
+            print "Enter a program name"
+            program = raw_input('> ')
+            file = open(self.submittedList, 'a')
+            file.write(program+"\n")
+            file.close()            
+
+shell = Shell()
+shell.run()            
