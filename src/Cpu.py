@@ -39,7 +39,7 @@ class Cpu(threading.Thread):
         else:
             return False
 
-    def execInstruction(self, opcode, opr, value=None):
+    def execInstruction(self, opcode, opr):
         if opcode == 1: #ADD
             self.lock.acquire()
             self.acc += self.memory[self.translate(opr)]
@@ -87,7 +87,8 @@ class Cpu(threading.Thread):
             self.lock.release()
         elif opcode == 10:#IN
             self.lock.acquire()
-            self.memory[self.translate(opr)] = value
+            inputData = raw_input('> ')
+            self.memory[self.translate(opr)] = inputData
             self.incrementPC()
             self.lock.release()
         elif opcode == 11:#OUT
