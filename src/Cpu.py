@@ -2,7 +2,7 @@ import threading
 
 class Cpu(threading.Thread):
 
-    def __init__(self, memory):
+    def __init__(self, memory, consoleRequests, pcb=None):
         threading.Thread.__init__(self, group=None, target=None, name='CPU',verbose=None)
         self.lock = threading.Lock()
         self.memory = memory
@@ -10,6 +10,8 @@ class Cpu(threading.Thread):
         self.pc = 0
         self.r0 = 0
         self.r1 = 0
+        self.pcb = pcb
+        self.consoleRequests = consoleRequests
                 
     def run(self):
         print "Thread", self.getName()
@@ -87,13 +89,12 @@ class Cpu(threading.Thread):
             self.lock.release()
         elif opcode == 10:#IN
             self.lock.acquire()
-            inputData = raw_input('> ')
-            self.memory[self.translate(opr)] = inputData
+            self.input(self.memory[self.translate(opr)])
             self.incrementPC()
             self.lock.release()
         elif opcode == 11:#OUT
             self.lock.acquire()
-            print self.memory[self.translate(opr)]
+            self.output(self.memory[self.translate(opr)])
             self.incrementPC()
             self.lock.release()
         elif opcode == 12:#STOP
@@ -102,3 +103,10 @@ class Cpu(threading.Thread):
             pass
         else:
             print "opcode ", opcode, " invalid"
+
+
+    def input(self, memyPos):
+        self.consoleRequests.append(self.pcb.pid+"_in_"+memyPos)
+    
+    def output(self, msg):
+        self.consoleRequests.append(self.pcb.pid+"_out_"+msg)

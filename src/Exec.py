@@ -8,7 +8,7 @@ from MemoryPosition import MemoryPosition
 
 class Exec(threading.Thread):
 
-    def __init__(self, memory, partitons, partitionLength):
+    def __init__(self, memory, partitons, partitionLength, pcbs):
         threading.Thread.__init__(self, group=None, target=None, name='EXEC',verbose=None)
         self.lock = threading.Lock()
         self.memory = memory
@@ -18,6 +18,7 @@ class Exec(threading.Thread):
         self.programsPath = self.path+"/../programs/"
         self.submittedList = self.path+"/submitted.txt"
         self.readyList = self.path+"/ready.txt"
+        self.pcbs = pcbs
 
     def run(self):
         print "Thread", self.getName()
@@ -39,9 +40,9 @@ class Exec(threading.Thread):
                 if(type(partition) == bool and partition == False):
                     print 'Memory full'
                 else:
-                    #TODO store pcb in a list of pcbs
                     #print partition, self.partitionLength
                     pcb = Pcb(random.randint(1000, 9999), 0, 0, partition, partition+self.partitionLength)
+                    self.pcbs.push(pcb)
                     
                     #get program instruction from program file
                     programFile = open(self.programsPath+programName, 'r')
