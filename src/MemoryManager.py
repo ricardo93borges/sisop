@@ -11,7 +11,7 @@ class MemoryManager():
         while(n <= self.memorySize):
             if n >= self.memorySize:                
                 return False
-            elif self.memory[0] == None:                
+            elif self.memory[n] == None:                
                 return n            
             else:
                 n += self.partitions

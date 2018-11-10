@@ -1,4 +1,5 @@
 import threading
+import time
 
 class Cpu(threading.Thread):
 
@@ -12,9 +13,18 @@ class Cpu(threading.Thread):
         self.r1 = 0
         self.pcb = pcb
         self.consoleRequests = consoleRequests
+        self.blocked = False
                 
     def run(self):
         print "Thread", self.getName()
+        while True:
+            if self.blocked == False:
+                continue
+
+            instruction = self.memory[self.r0+self.pc]
+            self.lock.acquire()
+            self.execInstruction(instruction.opcode, instruction.opr)
+            self.lock.release()
 
     def incrementPC(self):
         if self.validatePosition(self.pc+1):
@@ -42,61 +52,39 @@ class Cpu(threading.Thread):
             return False
 
     def execInstruction(self, opcode, opr):
-        if opcode == 1: #ADD
-            self.lock.acquire()
+        if opcode == 1: #ADD            
             self.acc += self.memory[self.translate(opr)]
-            self.incrementPC()
-            self.lock.release()
+            self.incrementPC()            
         elif opcode == 2:#SUB
-            self.lock.acquire()
             self.acc -= self.memory[self.translate(opr)]
             self.incrementPC()
-            self.lock.release()
         elif opcode == 3:#MUL
-            self.lock.acquire()
             self.acc *= self.memory[self.translate(opr)]
             self.incrementPC()
-            self.lock.release()
         elif opcode == 4:#DIV
-            self.lock.acquire()
             self.acc /= self.memory[self.translate(opr)]
             self.incrementPC()
-            self.lock.release()
         elif opcode == 5:#LOAD
-            self.lock.acquire()
             self.acc = self.memory[self.translate(opr)]
             self.incrementPC()
-            self.lock.release()
         elif opcode == 6:#STORE
-            self.lock.acquire()
             self.memory[self.translate(opr)] = self.acc
             self.incrementPC()
-            self.lock.release()
         elif opcode == 7:#BRPOS
-            self.lock.acquire()
             if self.acc > 0:
                 self.setPC(opr)
-            self.lock.release()
         elif opcode == 8:#BRNEG
-            self.lock.acquire()
             if self.acc < 0:
                 self.setPC(opr)
-            self.lock.release()
         elif opcode == 9:#BREQ
-            self.lock.acquire()
             if self.acc == 0:
                 self.setPC(opr)
-            self.lock.release()
         elif opcode == 10:#IN
-            self.lock.acquire()
             self.input(self.memory[self.translate(opr)])
             self.incrementPC()
-            self.lock.release()
         elif opcode == 11:#OUT
-            self.lock.acquire()
             self.output(self.memory[self.translate(opr)])
             self.incrementPC()
-            self.lock.release()
         elif opcode == 12:#STOP
             pass
         elif opcode == 13:#DAT
