@@ -13,18 +13,25 @@ class Cpu(threading.Thread):
         self.r1 = 0
         self.pcb = pcb
         self.consoleRequests = consoleRequests
-        self.blocked = False
+        self.blocked = True
                 
     def run(self):
-        print "Thread", self.getName()
         while True:
-            if self.blocked == False:
+            if self.blocked == True:
+                time.sleep(1)
                 continue
 
             instruction = self.memory[self.r0+self.pc]
             self.lock.acquire()
-            self.execInstruction(instruction.opcode, instruction.opr)
+            self.execInstruction(int(instruction.opcode), int(instruction.opr))
+            self.endProgram()
             self.lock.release()
+
+    def reset(self):
+        self.acc = self.pcb.acc
+        self.pc = self.pcb.pc
+        self.r0 = self.pcb.r0
+        self.r1 = self.pcb.r1
 
     def incrementPC(self):
         if self.validatePosition(self.pc+1):
@@ -52,6 +59,7 @@ class Cpu(threading.Thread):
             return False
 
     def execInstruction(self, opcode, opr):
+        print 'instr: ', opcode, opr
         if opcode == 1: #ADD            
             self.acc += self.memory[self.translate(opr)]
             self.incrementPC()            
@@ -93,8 +101,15 @@ class Cpu(threading.Thread):
             print "opcode ", opcode, " invalid"
 
 
-    def input(self, memyPos):
-        self.consoleRequests.append(self.pcb.pid+"_in_"+memyPos)
+    def input(self, memPos):
+        s = '%s_in_%s' %(self.pcb.pid, memPos)
+        self.consoleRequests.put(s)
+        print 'cpu', self.consoleRequests.qsize()
     
     def output(self, msg):
-        self.consoleRequests.append(self.pcb.pid+"_out_"+msg)
+        s = '%s_out_%s' %(self.pcb.pid, msg)
+        self.consoleRequests.put(s)
+
+    def endProgram(self):
+        if self.pc == self.r1 or self.memory[self.r0+self.pc] == None:
+            pass

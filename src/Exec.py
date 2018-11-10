@@ -62,7 +62,6 @@ class Exec(threading.Thread):
             submittedFile.close()
             
             self.lock.release()
-            print self.readyProcesses
             time.sleep(1)
 
     def translateProgramInstruction(self, instructions):

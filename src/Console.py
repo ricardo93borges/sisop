@@ -1,3 +1,4 @@
+import time
 import threading
 from MemoryPosition import MemoryPosition
 
@@ -15,8 +16,11 @@ class Console(threading.Thread):
         while True:
             #check if there are console requests            
             self.lock.acquire()
-            for request in self.consoleRequests:
+            print 'Console', self.consoleRequests.qsize()
+            while not self.consoleRequests.empty():
+                request = self.consoleRequests.get()
                 arr = request.split('_')
+                print arr
 
                 pid = arr[0]
                 rtype = arr[1]
@@ -29,5 +33,6 @@ class Console(threading.Thread):
                 else:
                     print 'PID', pid,'-', msg
             
-            self.consoleRequests = []
+            #self.consoleRequests = []
             self.lock.release()
+            time.sleep(1)
