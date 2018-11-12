@@ -106,6 +106,9 @@ class Exec(threading.Thread):
             elif instructionArr[0] == 'STOP':
                 mp = MemoryPosition(12, None)
                 positionsArr.append(mp)
+            elif instructionArr[0] == 'DAT':
+                mp = MemoryPosition(13, int(instructionArr[1]))
+                positionsArr.append(mp)
             else:
                 print "Invalid instruction"
         

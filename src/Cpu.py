@@ -15,11 +15,12 @@ class Cpu(threading.Thread):
         self.pcb = pcb
         self.consoleRequests = consoleRequests
         self.blocked = True
+        self.emptyIndex = 50
                 
     def run(self):
         while True:
             if self.blocked == True:
-                time.sleep(1)
+                #time.sleep(1)
                 continue
 
             instruction = self.memory[self.r0+self.pc]
@@ -87,26 +88,39 @@ class Cpu(threading.Thread):
             self.memory[self.translate(opr)] = mp
             self.incrementPC()
         elif opcode == 7:#BRPOS
-            print 'brpos'
             if self.acc > 0:
                 self.setPC(int(opr))
+            else:
+                self.incrementPC()
         elif opcode == 8:#BRNEG
             if self.acc < 0:
                 self.setPC(int(opr))
+            else:
+                self.incrementPC()
         elif opcode == 9:#BREQ
-            print 'breq', self.acc, int(opr)
             if self.acc == 0:
                 self.setPC(int(opr))
+            else:
+                self.incrementPC()
         elif opcode == 10:#IN
             self.input(self.translate(opr))
             self.incrementPC()
         elif opcode == 11:#OUT
+            print '###OUT'
             self.output(self.memory[self.translate(opr)].opr)
             self.incrementPC()
         elif opcode == 12:#STOP
             self.endProgram()
         elif opcode == 13:#DAT
-            pass
+            mp = MemoryPosition(13, int(opr))
+            index = self.r0 + self.emptyIndex
+            if self.r0 <= index and self.r1 >= index:
+                self.memory[index] = mp
+                self.emptyIndex += 1
+            else:
+                print 'Invalid position: ', index
+                
+            self.incrementPC()
         else:
             print "opcode ", opcode, " invalid"
 
@@ -121,7 +135,6 @@ class Cpu(threading.Thread):
         s = '%s_out_%s' %(self.pcb.pid, msg)
         self.consoleRequests.put(s)
 
-    #TODO remove program from memory
     def endProgram(self):
         print 'program ', self.pcb.pid,' finished'
         self.blocked = True
