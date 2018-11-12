@@ -4,7 +4,7 @@ from MemoryPosition import MemoryPosition
 
 class Cpu(threading.Thread):
 
-    def __init__(self, memory, consoleRequests, pcb=None):
+    def __init__(self, memory, consoleRequests, pcb=None, ecpu=None):
         threading.Thread.__init__(self, group=None, target=None, name='CPU',verbose=None)
         self.lock = threading.Lock()
         self.memory = memory
@@ -16,6 +16,7 @@ class Cpu(threading.Thread):
         self.consoleRequests = consoleRequests
         self.blocked = True
         self.emptyIndex = 50
+        self.ecpu = ecpu
                 
     def run(self):
         while True:
@@ -40,6 +41,7 @@ class Cpu(threading.Thread):
         self.pc = self.pcb.pc
         self.r0 = self.pcb.r0
         self.r1 = self.pcb.r1
+        self.emptyIndex = 50
 
     def incrementPC(self):
         if self.validatePosition(self.pc+1):
@@ -67,7 +69,6 @@ class Cpu(threading.Thread):
             return False
 
     def execInstruction(self, opcode, opr=None):
-        #print 'opcode', opcode, 'opr', opr
         if opcode == 1: #ADD            
             self.acc += int(self.memory[self.translate(opr)].opr)
             self.incrementPC()            
@@ -106,7 +107,6 @@ class Cpu(threading.Thread):
             self.input(self.translate(opr))
             self.incrementPC()
         elif opcode == 11:#OUT
-            print '###OUT'
             self.output(self.memory[self.translate(opr)].opr)
             self.incrementPC()
         elif opcode == 12:#STOP
@@ -138,16 +138,4 @@ class Cpu(threading.Thread):
     def endProgram(self):
         print 'program ', self.pcb.pid,' finished'
         self.blocked = True
-        self.removeProgram()
-    
-    def removeProgram(self):
-        i = self.r0
-        while i < 64:
-            self.memory[i] = None
-            i += 1
-
-    def dumpPartition(self):
-        i = self.r0
-        while i < 64:
-            print self.memory[i]
-            i += 1
+        self.ecpu.finishProgram(self.pcb, self.r0)        

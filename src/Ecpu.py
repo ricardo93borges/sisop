@@ -23,6 +23,7 @@ class Ecpu(threading.Thread):
             if nextProcess != None:
                 print 'exec ', nextProcess.pid
                 self.cpu.pcb = nextProcess
+                self.cpu.ecpu = self
                 self.cpu.reset()
                 self.cpu.blocked = False
 
@@ -44,11 +45,36 @@ class Ecpu(threading.Thread):
         return None
 
     def blockCpu(self):
-        print 'blocking cpu'
         self.cpu.blocked = True
     
     def unblockCpu(self):
-        print 'unblocking cpu'
         self.cpu.blocked = False
+
+    def finishProgram(self, pcb, r0):
+        self.removeProgram(r0)
+        self.removePcb(pcb)
+
+    def removePcb(self, pcb):
+        i = 0
+        while i < len(self.pcbs):
+            if self.pcbs[i].pid == pcb.pid:
+                del self.pcbs[i]
+                break
+            i += 1
+
+    def removeProgram(self, r0):
+        i = r0
+        while i < 64:
+            self.memory[i] = None
+            i += 1
+
+    def dumpPartition(self, r0):
+        i = r0
+        while i < 64:
+            if self.memory[i] == None:
+                print i, ':', None
+            else:    
+                print i, ':', 'opcode', self.memory[i].opcode, 'opr', self.memory[i].opr
+            i += 1
         
         
