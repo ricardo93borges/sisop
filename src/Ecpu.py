@@ -11,39 +11,30 @@ class Ecpu(threading.Thread):
         self.consoleRequests = consoleRequests
         self.readyProcesses = readyProcesses
         self.pcbs = pcbs
-        self.index = 0
 
     def run(self):
         print "Thread", self.getName()
 
-        cpu = Cpu(self.memory, self.consoleRequests)
-        cpu.start()
+        self.cpu = Cpu(self.memory, self.consoleRequests)
+        self.cpu.start()
 
         while True:
             nextProcess = self.getNextProcess()
             if nextProcess != None:
                 print 'exec ', nextProcess.pid
-                cpu.pcb = nextProcess
-                cpu.reset()
-                cpu.blocked = False
+                self.cpu.pcb = nextProcess
+                self.cpu.reset()
+                self.cpu.blocked = False
 
             time.sleep(10)
         
 
     def getNextProcess(self):
-        if len(self.readyProcesses) == 0:
+        if self.readyProcesses.empty():
             return None
-        
-        if self.index >= len(self.readyProcesses):
-            self.index = 0
-        
+            
         #get a ready process pid
-        pid = self.readyProcesses[self.index]
-        
-        #remove process
-        del self.readyProcesses[self.index]
-
-        self.index += 1
+        pid = self.readyProcesses.get()        
         return self.getProcessByPid(pid)
 
     def getProcessByPid(self, pid):
@@ -51,5 +42,13 @@ class Ecpu(threading.Thread):
             if pcb.pid == pid:
                 return pcb
         return None
+
+    def blockCpu(self):
+        print 'blocking cpu'
+        self.cpu.blocked = True
+    
+    def unblockCpu(self):
+        print 'unblocking cpu'
+        self.cpu.blocked = False
         
         

@@ -1,5 +1,6 @@
 import threading
 import time
+from MemoryPosition import MemoryPosition
 
 class Cpu(threading.Thread):
 
@@ -23,8 +24,14 @@ class Cpu(threading.Thread):
 
             instruction = self.memory[self.r0+self.pc]
             self.lock.acquire()
-            self.execInstruction(int(instruction.opcode), int(instruction.opr))
-            self.endProgram()
+
+            opcode = int(instruction.opcode)
+            if opcode == 12:
+                self.execInstruction(int(instruction.opcode))
+            else:
+                self.execInstruction(int(instruction.opcode), int(instruction.opr))
+            #print 'acc', self.acc
+            #self.endProgram()
             self.lock.release()
 
     def reset(self):
@@ -58,43 +65,46 @@ class Cpu(threading.Thread):
         else:
             return False
 
-    def execInstruction(self, opcode, opr):
-        print 'instr: ', opcode, opr
+    def execInstruction(self, opcode, opr=None):
+        #print 'opcode', opcode, 'opr', opr
         if opcode == 1: #ADD            
-            self.acc += self.memory[self.translate(opr)]
+            self.acc += int(self.memory[self.translate(opr)].opr)
             self.incrementPC()            
         elif opcode == 2:#SUB
-            self.acc -= self.memory[self.translate(opr)]
+            self.acc -= int(self.memory[self.translate(opr)].opr)
             self.incrementPC()
         elif opcode == 3:#MUL
-            self.acc *= self.memory[self.translate(opr)]
+            self.acc *= int(self.memory[self.translate(opr)].opr)
             self.incrementPC()
         elif opcode == 4:#DIV
-            self.acc /= self.memory[self.translate(opr)]
+            self.acc /= int(self.memory[self.translate(opr)].opr)
             self.incrementPC()
         elif opcode == 5:#LOAD
-            self.acc = self.memory[self.translate(opr)]
+            self.acc = int(self.memory[self.translate(opr)].opr)
             self.incrementPC()
         elif opcode == 6:#STORE
-            self.memory[self.translate(opr)] = self.acc
+            mp = MemoryPosition(13, int(self.acc))
+            self.memory[self.translate(opr)] = mp
             self.incrementPC()
         elif opcode == 7:#BRPOS
+            print 'brpos'
             if self.acc > 0:
-                self.setPC(opr)
+                self.setPC(int(opr))
         elif opcode == 8:#BRNEG
             if self.acc < 0:
-                self.setPC(opr)
+                self.setPC(int(opr))
         elif opcode == 9:#BREQ
+            print 'breq', self.acc, int(opr)
             if self.acc == 0:
-                self.setPC(opr)
+                self.setPC(int(opr))
         elif opcode == 10:#IN
-            self.input(self.memory[self.translate(opr)])
+            self.input(self.translate(opr))
             self.incrementPC()
         elif opcode == 11:#OUT
-            self.output(self.memory[self.translate(opr)])
+            self.output(self.memory[self.translate(opr)].opr)
             self.incrementPC()
         elif opcode == 12:#STOP
-            pass
+            self.endProgram()
         elif opcode == 13:#DAT
             pass
         else:
@@ -102,14 +112,23 @@ class Cpu(threading.Thread):
 
 
     def input(self, memPos):
+        self.blocked = True
         s = '%s_in_%s' %(self.pcb.pid, memPos)
         self.consoleRequests.put(s)
-        print 'cpu', self.consoleRequests.qsize()
     
     def output(self, msg):
         s = '%s_out_%s' %(self.pcb.pid, msg)
         self.consoleRequests.put(s)
 
+    #TODO remove program from memory
     def endProgram(self):
-        if self.pc == self.r1 or self.memory[self.r0+self.pc] == None:
-            pass
+        print 'finished'
+        print 'acc', self.acc
+        print self.memory[20].opr
+        print self.memory[21].opr
+        print self.memory[22].opr
+        print self.memory[23].opr
+        self.blocked = True        
+        """ if self.pc == self.r1 or self.memory[self.r0+self.pc] == None:
+            print 'finished'
+            self.blocked = True """

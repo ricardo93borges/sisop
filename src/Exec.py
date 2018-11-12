@@ -54,7 +54,7 @@ class Exec(threading.Thread):
                     mm.loadProgram(partition, program)
 
                     #Append program in ready list
-                    self.readyProcesses.append(pcb.pid)                    
+                    self.readyProcesses.put(pcb.pid)                    
                     #print self.memory
 
             submittedFile = open(self.submittedList, 'w')
@@ -71,37 +71,37 @@ class Exec(threading.Thread):
             instructionArr = instruction.split(" ")
 
             if instructionArr[0] == 'ADD':
-                mp = MemoryPosition(1, instructionArr[1])
+                mp = MemoryPosition(1, int(instructionArr[1]))
                 positionsArr.append(mp)
             elif instructionArr[0] == 'SUB':
-                mp = MemoryPosition(2, instructionArr[1])
+                mp = MemoryPosition(2, int(instructionArr[1]))
                 positionsArr.append(mp)
             elif instructionArr[0] == 'MUL':
-                mp = MemoryPosition(3, instructionArr[1])
+                mp = MemoryPosition(3, int(instructionArr[1]))
                 positionsArr.append(mp)
             elif instructionArr[0] == 'DIV':
-                mp = MemoryPosition(4, instructionArr[1])
+                mp = MemoryPosition(4, int(instructionArr[1]))
                 positionsArr.append(mp)
             elif instructionArr[0] == 'LOAD':
-                mp = MemoryPosition(5, instructionArr[1])
+                mp = MemoryPosition(5, int(instructionArr[1]))
                 positionsArr.append(mp)
             elif instructionArr[0] == 'STORE':
-                mp = MemoryPosition(6, instructionArr[1])
+                mp = MemoryPosition(6, int(instructionArr[1]))
                 positionsArr.append(mp)
             elif instructionArr[0] == 'BRPOS':
-                mp = MemoryPosition(7, instructionArr[1])
+                mp = MemoryPosition(7, int(instructionArr[1]))
                 positionsArr.append(mp)
             elif instructionArr[0] == 'BRNEG':
-                mp = MemoryPosition(8, instructionArr[1])
+                mp = MemoryPosition(8, int(instructionArr[1]))
                 positionsArr.append(mp)
             elif instructionArr[0] == 'BREQ':
-                mp = MemoryPosition(9, instructionArr[1])
+                mp = MemoryPosition(9, int(instructionArr[1]))
                 positionsArr.append(mp)
             elif instructionArr[0] == 'IN':
-                mp = MemoryPosition(10, instructionArr[1])
+                mp = MemoryPosition(10, int(instructionArr[1]))
                 positionsArr.append(mp)
             elif instructionArr[0] == 'OUT':
-                mp = MemoryPosition(11, instructionArr[1])
+                mp = MemoryPosition(11, int(instructionArr[1]))
                 positionsArr.append(mp)
             elif instructionArr[0] == 'STOP':
                 mp = MemoryPosition(12, None)

@@ -12,15 +12,15 @@ class Main:
     memory = [None]*memoryLength
     pcbs = []
     consoleRequests = Queue.Queue()
-    readyProcesses = []
+    readyProcesses = Queue.Queue()
 
     def __init__(self):
         print "main"
         #print Main.memory
-
-        console = Console(Main.memory, Main.consoleRequests)
+        
         ecpu = Ecpu(Main.memory, Main.consoleRequests, Main.readyProcesses, Main.pcbs)
         ex = Exec(Main.memory, Main.partitions, Main.partitionLength, Main.pcbs, Main.readyProcesses)
+        console = Console(Main.memory, Main.consoleRequests, ecpu)
         
         console.start()
         ecpu.start()
