@@ -24,7 +24,7 @@ class Cpu(threading.Thread):
                 #time.sleep(1)
                 continue
 
-            instruction = self.memory[self.r0+self.pc]
+            instruction = self.memory[self.translate(self.pc)]
             self.lock.acquire()
 
             opcode = int(instruction.opcode)
@@ -32,8 +32,6 @@ class Cpu(threading.Thread):
                 self.execInstruction(int(instruction.opcode))
             else:
                 self.execInstruction(int(instruction.opcode), int(instruction.opr))
-            #print 'acc', self.acc
-            #self.endProgram()
             self.lock.release()
 
     def reset(self):
@@ -42,18 +40,12 @@ class Cpu(threading.Thread):
         self.r0 = self.pcb.r0
         self.r1 = self.pcb.r1
         self.emptyIndex = 50
-
+        
     def incrementPC(self):
-        if self.validatePosition(self.pc+1):
-            self.pc += 1
-        else:
-            print "Improper access"
+        self.pc += 1
 
     def setPC(self, position):
-        if self.validatePosition(position):
-            self.pc = position
-        else:
-            print "Improper access"
+        self.pc = position
 
     def translate(self, logicalPosition):
         physicalPosition = self.r0+logicalPosition
@@ -61,11 +53,13 @@ class Cpu(threading.Thread):
             return physicalPosition
         else:
             print "Improper access"
+            self.blocked = True
 
     def validatePosition(self, position):
         if self.r0 <= position and self.r1 >= position:
             return True
         else:
+            print position, self.r0, self.r1
             return False
 
     def execInstruction(self, opcode, opr=None):

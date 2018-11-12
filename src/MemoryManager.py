@@ -14,7 +14,7 @@ class MemoryManager():
             elif self.memory[n] == None:                
                 return n            
             else:
-                n += self.partitions
+                n += self.partitionLength
 
     def loadProgram(self, partition, program):
         if len(program) > self.partitionLength:

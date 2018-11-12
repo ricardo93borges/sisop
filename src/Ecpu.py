@@ -21,7 +21,8 @@ class Ecpu(threading.Thread):
         while True:
             nextProcess = self.getNextProcess()
             if nextProcess != None:
-                print 'exec ', nextProcess.pid
+                print 'exec:', nextProcess.pid, ' r0:', nextProcess.r0, ' r1:', nextProcess.r1
+                #self.dumpPartition(nextProcess.r0)
                 self.cpu.pcb = nextProcess
                 self.cpu.ecpu = self
                 self.cpu.reset()

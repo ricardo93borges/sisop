@@ -22,20 +22,21 @@ class Exec(threading.Thread):
 
     def run(self):
         print "Thread", self.getName()
-        while True:
+        t = True
+        while t:
             #check if there are programs submitted
-            submittedFile = open(self.submittedList, 'r')
-            programs = submittedFile.readlines()
-            submittedFile.close()
-            
+            #submittedFile = open(self.submittedList, 'r')
+            #programs = submittedFile.readlines()
+            #submittedFile.close()
+            programs = ["p1.txt", "p1.txt"]
             self.lock.acquire()
             for programName in programs:
                 programName = programName.replace("\n","")
-                print "program name", programName
-
+                
                 #allocate a partition for the program
                 mm = MemoryManager(self.memory, self.partitions, self.partitionLength)                
                 partition = mm.allocMemory()
+                print "program name:", programName, ' partition:', partition
 
                 if(type(partition) == bool and partition == False):
                     print 'Memory full'
@@ -62,6 +63,7 @@ class Exec(threading.Thread):
             submittedFile.close()
             
             self.lock.release()
+            t = False
             time.sleep(1)
 
     def translateProgramInstruction(self, instructions):
