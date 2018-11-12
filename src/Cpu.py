@@ -117,18 +117,24 @@ class Cpu(threading.Thread):
         self.consoleRequests.put(s)
     
     def output(self, msg):
+        self.blocked = True
         s = '%s_out_%s' %(self.pcb.pid, msg)
         self.consoleRequests.put(s)
 
     #TODO remove program from memory
     def endProgram(self):
-        print 'finished'
-        print 'acc', self.acc
-        print self.memory[20].opr
-        print self.memory[21].opr
-        print self.memory[22].opr
-        print self.memory[23].opr
-        self.blocked = True        
-        """ if self.pc == self.r1 or self.memory[self.r0+self.pc] == None:
-            print 'finished'
-            self.blocked = True """
+        print 'program ', self.pcb.pid,' finished'
+        self.blocked = True
+        self.removeProgram()
+    
+    def removeProgram(self):
+        i = self.r0
+        while i < 64:
+            self.memory[i] = None
+            i += 1
+
+    def dumpPartition(self):
+        i = self.r0
+        while i < 64:
+            print self.memory[i]
+            i += 1
