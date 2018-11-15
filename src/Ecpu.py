@@ -14,10 +14,11 @@ class Ecpu(threading.Thread):
 
     def run(self):
         print "Thread", self.getName()
-
+        
         self.cpu = Cpu(self.memory, self.consoleRequests)
         self.cpu.start()
-
+        
+        #Get next ready program and unblock CPU
         while True:
             nextProcess = self.getNextProcess()
             if nextProcess != None:
@@ -55,6 +56,7 @@ class Ecpu(threading.Thread):
         self.removeProgram(r0)
         self.removePcb(pcb)
 
+    #remove a pcb from the pcb list
     def removePcb(self, pcb):
         i = 0
         while i < len(self.pcbs):
@@ -63,12 +65,14 @@ class Ecpu(threading.Thread):
                 break
             i += 1
 
+    #Remove program from memory
     def removeProgram(self, r0):
         i = r0
         while i < 64:
             self.memory[i] = None
             i += 1
 
+    #Dump what is in a partition for debug purpose 
     def dumpPartition(self, r0):
         i = r0
         while i < 64:

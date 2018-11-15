@@ -10,13 +10,12 @@ class Main:
     partitionLength = 64
     memoryLength = partitions * partitionLength
     memory = [None]*memoryLength
-    pcbs = []
-    consoleRequests = Queue.Queue()
-    readyProcesses = Queue.Queue()
+    pcbs = [] #store PCBs
+    consoleRequests = Queue.Queue() #store Console requests, Queue is thread safe
+    readyProcesses = Queue.Queue() #store ready processes, Queue is thread safe
 
     def __init__(self):
         print "main"
-        #print Main.memory
         
         ecpu = Ecpu(Main.memory, Main.consoleRequests, Main.readyProcesses, Main.pcbs)
         ex = Exec(Main.memory, Main.partitions, Main.partitionLength, Main.pcbs, Main.readyProcesses)

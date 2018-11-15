@@ -23,12 +23,12 @@ class Exec(threading.Thread):
     def run(self):
         print "Thread", self.getName()
         t = True
-        while t:
-            #check if there are programs submitted
-            #submittedFile = open(self.submittedList, 'r')
-            #programs = submittedFile.readlines()
-            #submittedFile.close()
-            programs = ["p1.txt", "p1.txt"]
+        while True:
+            #check if there are any programs submitted
+            submittedFile = open(self.submittedList, 'r')
+            programs = submittedFile.readlines()
+            submittedFile.close()
+            #programs = ["p1.txt", "p2.txt", "p3.txt"]
             self.lock.acquire()
             for programName in programs:
                 programName = programName.replace("\n","")
@@ -41,7 +41,7 @@ class Exec(threading.Thread):
                 if(type(partition) == bool and partition == False):
                     print 'Memory full'
                 else:
-                    #print partition, self.partitionLength
+                    #Create a PCB for the program
                     pcb = Pcb(random.randint(1000, 9999), 0, 0, partition, partition+self.partitionLength)
                     self.pcbs.append(pcb)
                     
@@ -56,7 +56,6 @@ class Exec(threading.Thread):
 
                     #Append program in ready list
                     self.readyProcesses.put(pcb.pid)                    
-                    #print self.memory
 
             submittedFile = open(self.submittedList, 'w')
             submittedFile.write("")
@@ -66,6 +65,7 @@ class Exec(threading.Thread):
             t = False
             time.sleep(1)
 
+    #Translate a program instruction to a MemoryPosition instance
     def translateProgramInstruction(self, instructions):
         positionsArr = []
         for instruction in instructions:

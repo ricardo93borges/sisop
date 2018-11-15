@@ -6,6 +6,7 @@ class MemoryManager():
         self.partitionLength = partitionLength
         self.memorySize = partitons*partitionLength
 
+    #Returns first free partition
     def allocMemory(self):
         n = 0
         while(n <= self.memorySize):
@@ -16,6 +17,7 @@ class MemoryManager():
             else:
                 n += self.partitionLength
 
+    #load program in memory
     def loadProgram(self, partition, program):
         if len(program) > self.partitionLength:
             print "program size is larger than a memory partition length"

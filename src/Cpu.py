@@ -20,20 +20,24 @@ class Cpu(threading.Thread):
                 
     def run(self):
         while True:
+            #Check if CPU is blocked
             if self.blocked == True:
-                #time.sleep(1)
+                time.sleep(1)
                 continue
-
+            #Get next instruction
             instruction = self.memory[self.translate(self.pc)]
+            
+            #Lock state
             self.lock.acquire()
-
             opcode = int(instruction.opcode)
+            #if instruction is stop
             if opcode == 12:
-                self.execInstruction(int(instruction.opcode))
+                self.execInstruction(int(instruction.opcode))#Exec instruction
             else:
-                self.execInstruction(int(instruction.opcode), int(instruction.opr))
+                self.execInstruction(int(instruction.opcode), int(instruction.opr))#Exec instruction
             self.lock.release()
 
+    #Reset CPU state
     def reset(self):
         self.acc = self.pcb.acc
         self.pc = self.pcb.pc
@@ -47,6 +51,7 @@ class Cpu(threading.Thread):
     def setPC(self, position):
         self.pc = position
 
+    #translate logical position to physical position
     def translate(self, logicalPosition):
         physicalPosition = self.r0+logicalPosition
         if self.validatePosition(physicalPosition):
@@ -55,6 +60,7 @@ class Cpu(threading.Thread):
             print "Improper access"
             self.blocked = True
 
+    #Validate if position is inside program's partition
     def validatePosition(self, position):
         if self.r0 <= position and self.r1 >= position:
             return True
@@ -62,6 +68,7 @@ class Cpu(threading.Thread):
             print position, self.r0, self.r1
             return False
 
+    #Execute instruction accordingly to its opcode
     def execInstruction(self, opcode, opr=None):
         if opcode == 1: #ADD            
             self.acc += int(self.memory[self.translate(opr)].opr)
@@ -118,17 +125,19 @@ class Cpu(threading.Thread):
         else:
             print "opcode ", opcode, " invalid"
 
-
+    #Insert a input request in Console queue
     def input(self, memPos):
         self.blocked = True
         s = '%s_in_%s' %(self.pcb.pid, memPos)
         self.consoleRequests.put(s)
     
+    #Insert a output request in Console queue
     def output(self, msg):
         self.blocked = True
         s = '%s_out_%s' %(self.pcb.pid, msg)
         self.consoleRequests.put(s)
 
+    #Finish program: block CPU and remove program from memory
     def endProgram(self):
         print 'program ', self.pcb.pid,' finished'
         self.blocked = True

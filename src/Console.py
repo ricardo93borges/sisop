@@ -15,7 +15,8 @@ class Console(threading.Thread):
         print "Thread", self.getName()
 
         while True:
-            #check if there are console requests            
+            #check if there are any console requests
+            #lock state
             self.lock.acquire()            
             while not self.consoleRequests.empty():                
                 request = self.consoleRequests.get()
@@ -26,15 +27,17 @@ class Console(threading.Thread):
                 msg = arr[2] if rtype == 'out' else None
                 memPos = int(arr[2]) if rtype == 'in' else None
 
+                #INPUT
                 if rtype == 'in':
                     i = raw_input('PID '+pid+'- > ')
                     self.memory[memPos] = MemoryPosition(13, i)
+                #OUTPUT
                 else:
                     print 'PID', pid,'-', msg
 
                 self.unblockCpu()
             
-            #self.consoleRequests = []
+            #unlock state
             self.lock.release()
             time.sleep(1)
 

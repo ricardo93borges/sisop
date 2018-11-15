@@ -6,6 +6,7 @@ class Shell():
         self.path = os.path.dirname(os.path.realpath(__file__))
         self.submittedList = self.path+"/submitted.txt"
 
+    #Append program names in submitted list
     def run(self):
         while True:
             print "Enter a program name"
