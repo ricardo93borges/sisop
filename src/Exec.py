@@ -24,7 +24,7 @@ class Exec(threading.Thread):
         print "Thread", self.getName()
         t = True
         while True:
-            #check if there are any programs submitted
+            #check if there is any programs submitted
             submittedFile = open(self.submittedList, 'r')
             programs = submittedFile.readlines()
             submittedFile.close()
@@ -36,7 +36,7 @@ class Exec(threading.Thread):
                 #allocate a partition for the program
                 mm = MemoryManager(self.memory, self.partitions, self.partitionLength)                
                 partition = mm.allocMemory()
-                print "program name:", programName, ' partition:', partition
+                print "program ", programName, ' allocated in partition:', partition
 
                 if(type(partition) == bool and partition == False):
                     print 'Memory full'

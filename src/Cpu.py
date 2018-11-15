@@ -44,6 +44,12 @@ class Cpu(threading.Thread):
         self.r0 = self.pcb.r0
         self.r1 = self.pcb.r1
         self.emptyIndex = 50
+
+    #Save CPU state in current running program PCB
+    def updateCurrentPCb(self):
+        self.pcb.acc = self.acc
+        self.pcb.pc = self.pc
+        return self.pcb
         
     def incrementPC(self):
         self.pc += 1

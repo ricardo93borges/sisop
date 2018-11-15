@@ -18,19 +18,40 @@ class Ecpu(threading.Thread):
         self.cpu = Cpu(self.memory, self.consoleRequests)
         self.cpu.start()
         
-        #Get next ready program and unblock CPU
+        # Get next ready program to run 
+        # or keep running current program if there is no other program
+        # Use round-robin algorithms with a quantum = 10 to schedule process  
         while True:
+            # Get next ready program
             nextProcess = self.getNextProcess()
+            # If there is no ready program check if there is a program in pcb list to run
+            if nextProcess == None and len(self.pcbs) > 0:
+                nextProcess = self.pcbs[0]
+
             if nextProcess != None:
-                print 'exec:', nextProcess.pid, ' r0:', nextProcess.r0, ' r1:', nextProcess.r1
-                #self.dumpPartition(nextProcess.r0)
+                #update current process running pcb
+                if self.cpu.pcb != None:
+                    self.updateCurrentPcb()
+
+                # Run next program
+                print 'Running => ', nextProcess.pid, ' r0:', nextProcess.r0, ' r1:', nextProcess.r1
+                #self.dumpPartition(nextProcess.r0)            
                 self.cpu.pcb = nextProcess
                 self.cpu.ecpu = self
                 self.cpu.reset()
                 self.cpu.blocked = False
 
+            # Wait 10 seconds 
             time.sleep(10)
         
+    def updateCurrentPcb(self):
+        currentPcb = self.cpu.updateCurrentPCb()
+        for pcb in self.pcbs:
+            if pcb.pid == currentPcb.pid:
+                pcb.acc = currentPcb.acc
+                pcb.pc = currentPcb.pc
+                break
+
 
     def getNextProcess(self):
         if self.readyProcesses.empty():
